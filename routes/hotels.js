@@ -1,6 +1,7 @@
 const express = require("express")
 const Hotel = require("../models/Hotel")
 const { verifyAdmin } = require("./verifyToken")
+const Room = require("../models/Room")
 
 const router = express.Router()
 
@@ -99,6 +100,25 @@ router.get("/", async (req, res) => {
             city: city
         })
         res.status(200).json(featuredHotels)
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json(err)
+    }
+})
+
+
+//Get rooms from single hotel
+
+router.get("/getrooms/:id", async (req, res) => {
+
+    try {
+        const hotel = await Hotel.findById(req.params.id)
+        const rooms = await Promise.all(
+            hotel.rooms.map((room) => {
+                return Room.findById(room)
+            }))
+        res.status(200).json(rooms)
     }
     catch (err) {
         console.log(err)

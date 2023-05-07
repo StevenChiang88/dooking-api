@@ -1,7 +1,7 @@
 const express = require("express");
 const Room = require("../models/Room");
 const Hotel = require("../models/Hotel");
-const { verifyAdmin } = require("./verifyToken");
+const { verifyAdmin, verifyUser } = require("./verifyToken");
 
 const router = express.Router()
 
@@ -34,6 +34,22 @@ router.put("/:id", verifyAdmin, async (req, res) => {
             { new: true })
 
         res.status(200).json(updatedRoom)
+    }
+    catch (err) {
+        res.status(500).json(err)
+    }
+})
+
+// Update Room unavailableDates的日期
+router.put("/unavailable/:id", async (req, res) => {
+    try {
+        const result = await Room.updateOne({ "roomNumbers._id": req.params.id }, {
+            $push: {
+                "roomNumbers.$.unavailableDates": req.body
+            }
+        })
+
+        res.status(200).json(result)
     }
     catch (err) {
         res.status(500).json(err)
@@ -81,5 +97,7 @@ router.get("/", async (req, res) => {
         console.log(err)
     }
 })
+
+
 
 module.exports = router
